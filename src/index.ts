@@ -8,8 +8,12 @@ import transactionRoutes from './routes/transactions'
 
 const app = express()
 
-app.use(cors())
-app.use(express.json())
+const allowedOrigins = env.isDev
+  ? ['http://localhost:3000', 'http://10.0.2.2:3000'] // Android emulator uses 10.0.2.2 for host loopback
+  : ['https://api.mira.vn']
+
+app.use(cors({ origin: allowedOrigins, credentials: true }))
+app.use(express.json({ limit: '1mb' }))
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 

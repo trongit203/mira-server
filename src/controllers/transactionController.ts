@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express'
 import { z } from 'zod'
+import mongoose from 'mongoose'
 import { AuthRequest } from '../types'
 import { Transaction } from '../models/Transaction'
 import { ApiError } from '../utils/ApiError'
@@ -81,13 +82,31 @@ export async function deleteTransaction(req: AuthRequest, res: Response, next: N
   }
 }
 
+export async function syncTransactions(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const since = req.query.since ? new Date(req.query.since as string) : new Date(0)
+    if (isNaN(since.getTime())) throw new ApiError(400, 'Invalid since timestamp — use ISO 8601')
+
+    const transactions = await Transaction.find({
+      userId: req.userId,
+      updatedAt: { $gt: since },
+    }).sort({ updatedAt: 1 })
+
+    res.json({ success: true, data: transactions, syncedAt: new Date().toISOString() })
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function getDashboardSummary(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   try {
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    // Aggregate requires explicit ObjectId cast — Mongoose does NOT auto-cast in pipeline $match
+    const userObjectId = new mongoose.Types.ObjectId(req.userId!)
 
     const [summary] = await Transaction.aggregate([
-      { $match: { userId: req.userId, isDeleted: false, date: { $gte: startOfMonth } } },
+      { $match: { userId: userObjectId, isDeleted: false, date: { $gte: startOfMonth } } },
       {
         $group: {
           _id: null,

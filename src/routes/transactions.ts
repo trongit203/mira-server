@@ -7,6 +7,7 @@ import {
   updateTransaction,
   deleteTransaction,
   getDashboardSummary,
+  syncTransactions,
 } from '../controllers/transactionController'
 
 const router = Router()
@@ -14,6 +15,7 @@ const router = Router()
 router.use(authenticate)
 
 router.get('/dashboard', getDashboardSummary)
+router.get('/sync', syncTransactions)  // must be before /:id to avoid param capture
 router.get('/', getTransactions)
 router.post('/', createTransaction)
 router.get('/:id', getTransaction)

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { z } from 'zod'
 import { User } from '../models/User'
+import { AuthRequest } from '../types'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt'
 import { ApiError } from '../utils/ApiError'
 
@@ -81,6 +82,16 @@ export async function logout(req: Request, res: Response, next: NextFunction): P
       await User.findOneAndUpdate({ refreshToken }, { refreshToken: null })
     }
     res.json({ success: true })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function me(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await User.findById(req.userId).select('email name createdAt')
+    if (!user) throw new ApiError(404, 'User not found')
+    res.json({ success: true, data: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt } })
   } catch (err) {
     next(err)
   }
