@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { env } from './config/env'
 import { connectDatabase } from './config/database'
+import { logger } from './middleware/logger'
 import { errorHandler } from './middleware/errorHandler'
 import authRoutes from './routes/auth'
 import transactionRoutes from './routes/transactions'
@@ -9,11 +10,12 @@ import transactionRoutes from './routes/transactions'
 const app = express()
 
 const allowedOrigins = env.isDev
-  ? ['http://localhost:3000', 'http://10.0.2.2:3000'] // Android emulator uses 10.0.2.2 for host loopback
+  ? ['http://localhost:3000', 'http://10.0.2.2:3000', 'https://l6v5hhbf-3000.asse.devtunnels.ms/'] // Android emulator uses 10.0.2.2 for host loopback
   : ['https://api.mira.vn']
 
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json({ limit: '1mb' }))
+app.use(logger)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
