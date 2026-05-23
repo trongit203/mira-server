@@ -35,4 +35,7 @@ const TransactionSchema = new Schema<ITransaction>(
 // Compound index — most common query pattern
 TransactionSchema.index({ userId: 1, isDeleted: 1, date: -1 })
 
+// Index for sync endpoint — compound (updatedAt, _id) supports the tie-breaking cursor query
+TransactionSchema.index({ userId: 1, updatedAt: 1, _id: 1 })
+
 export const Transaction = mongoose.model<ITransaction>('Transaction', TransactionSchema)

@@ -3,6 +3,7 @@ import cors from 'cors'
 import { env } from './config/env'
 import { connectDatabase } from './config/database'
 import { errorHandler } from './middleware/errorHandler'
+import { requestLogger } from './middleware/logger'
 import authRoutes from './routes/auth'
 import transactionRoutes from './routes/transactions'
 
@@ -14,6 +15,7 @@ const allowedOrigins = env.isDev
 
 app.use(cors({ origin: allowedOrigins, credentials: true }))
 app.use(express.json({ limit: '1mb' }))
+app.use(requestLogger)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
