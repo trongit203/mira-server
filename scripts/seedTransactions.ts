@@ -1,9 +1,10 @@
 import mongoose from 'mongoose'
 import { Transaction } from '../src/models/Transaction'
+import { User } from '../src/models/User'
 import { TransactionType, DataSource } from '../src/types'
 
 const MONGO_URI = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/mira'
-const USER_ID = new mongoose.Types.ObjectId('6a06f330c0aca48c41d34deb')
+const EMAIL = 'trong.it203@gmail.com'
 const BATCH_SIZE = 500
 const TOTAL = 10_000
 
@@ -36,6 +37,11 @@ async function seed() {
   await mongoose.connect(MONGO_URI)
   console.log(`Connected to ${MONGO_URI}`)
 
+  const user = await User.findOne({ email: EMAIL }).select('_id')
+  if (!user) throw new Error(`No user found with email: ${EMAIL}`)
+  const userId = user._id
+  console.log(`Seeding for user ${EMAIL} (${userId})`)
+
   let inserted = 0
   while (inserted < TOTAL) {
     const size = Math.min(BATCH_SIZE, TOTAL - inserted)
@@ -43,7 +49,7 @@ async function seed() {
       const type = rand(TYPES)
       const categories = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
       return {
-        userId: USER_ID,
+        userId,
         amount: randAmount(type),
         type,
         category: rand(categories),

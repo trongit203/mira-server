@@ -11,4 +11,5 @@ export const env = {
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
   isDev: process.env.NODE_ENV !== 'production',
+  geminiApiKey: process.env.GEMINI_API_KEY || '',
 }

@@ -2,11 +2,11 @@ import express from 'express'
 import cors from 'cors'
 import { env } from './config/env'
 import { connectDatabase } from './config/database'
-import { logger } from './middleware/logger'
 import { errorHandler } from './middleware/errorHandler'
 import { requestLogger } from './middleware/logger'
 import authRoutes from './routes/auth'
 import transactionRoutes from './routes/transactions'
+import aiRoutes from './routes/ai'
 
 const app = express()
 
@@ -22,6 +22,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 
 app.use('/v1/auth', authRoutes)
 app.use('/v1/transactions', transactionRoutes)
+app.use('/v1/ai', aiRoutes)
 
 app.use(errorHandler)
 
